@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Melting Ice, Rising Sea? Virtual Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F9FB; --surface:#FFFFFF; --bench:#E3EEF3; --ink:#0E3A53; --ink-soft:#4C6C7F; --line:#C9DDE7;
+  --water:#5FAED6; --water-deep:#1F6E99; --ice:#F2FBFF; --ice-edge:#8CC7E3; --glass:rgba(220,240,250,.35); --glass-edge:#8FB3C6;
+  --clay:#B5714A; --clay-dark:#8E5233; --tape:#F2C230; --tape-ink:#4F3B00; --heat:#E4572E; --glow:rgba(255,206,92,.28);
+  --good:#21815A; --focus:#F2C230; --cork:#C49A6C; --thermo:#D33C2B;
+  --dye-blue:#2F7FD1; --dye-red:#D2453A; --dye-green:#2E9B5F;
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0C1C26; --surface:#122836; --bench:#16303F; --ink:#E4F2F8; --ink-soft:#9BB8C7; --line:#28495C;
+    --water:#3F8FBA; --water-deep:#7CC4E8; --ice:#DDF1FB; --ice-edge:#7FB8D3; --glass:rgba(140,190,215,.12); --glass-edge:#5E8AA0;
+    --clay:#A9673F; --clay-dark:#7E4728; --glow:rgba(255,206,92,.18); --good:#4CC28A; --cork:#A9825A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0C1C26; --surface:#122836; --bench:#16303F; --ink:#E4F2F8; --ink-soft:#9BB8C7; --line:#28495C;
+  --water:#3F8FBA; --water-deep:#7CC4E8; --ice:#DDF1FB; --ice-edge:#7FB8D3; --glass:rgba(140,190,215,.12); --glass-edge:#5E8AA0;
+  --clay:#A9673F; --clay-dark:#7E4728; --glow:rgba(255,206,92,.18); --good:#4CC28A; --cork:#A9825A;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 Lexend,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{line-height:1.2;margin:0}
+h1{font-size:1.35rem;font-weight:700}
+h2{font-size:1.6rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:.4em 0 .8em}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+img,svg,canvas{max-width:100%}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-inner{max-width:1240px;margin:0 auto;padding:.7rem 1.2rem .2rem;display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.4rem}
+.brand{display:flex;align-items:center;gap:.7rem;margin-right:auto}
+.brand p{margin:0;color:var(--ink-soft);font-size:.85rem}
+.tabs{display:flex;gap:.2rem;overflow-x:auto;width:100%;scrollbar-width:thin}
+.tabs a{flex:none;text-decoration:none;color:var(--ink-soft);padding:.55rem .8rem .6rem;border-bottom:3px solid transparent;font-weight:500;font-size:.95rem;white-space:nowrap}
+.tabs a .n{display:inline-grid;place-items:center;width:1.4em;height:1.4em;border-radius:50%;background:var(--bench);color:var(--ink);font-size:.8em;margin-right:.35em}
+.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--tape)}
+.tabs a:hover{color:var(--ink)}
+
+main{max-width:1240px;margin:0 auto;padding:1.4rem 1.2rem 4rem}
+[data-view]{display:none}
+[data-view].active{display:block}
+.lead{max-width:68ch;color:var(--ink-soft);font-size:1.05rem}
+.station-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 2rem;align-items:end;margin-bottom:1rem}
+.station-head .lead{margin:.3rem 0 0}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(290px,1fr);gap:1rem;align-items:start}
+@media (max-width:920px){.lab{grid-template-columns:1fr}}
+@media (min-width:921px){.lab .bench{position:sticky;top:calc(env(safe-area-inset-top,0px) + 118px)}}
+.bench{background:var(--bench);border-radius:14px;padding:.6rem;position:relative;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+.bench svg{display:block;width:100%;height:auto}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.panel h3{margin-bottom:.5rem}
+.group{margin:0 0 .9rem}
+.group > .lbl{display:block;font-size:.85rem;font-weight:600;margin-bottom:.3rem}
+.seg{display:flex;flex-wrap:wrap;gap:.3rem}
+.seg button{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:.32rem .75rem;font-size:.88rem;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+.range-row{display:flex;align-items:center;gap:.6rem}
+.range-row input{flex:1;accent-color:var(--water-deep)}
+.range-row output{min-width:4.5em;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin:.6rem 0 .8rem}
+.btn{border:1.5px solid var(--ink);background:var(--surface);border-radius:8px;padding:.55rem .6rem;font-weight:600;font-size:.9rem;cursor:pointer;text-align:center}
+.btn:hover:not(:disabled){background:var(--bench)}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.primary:hover:not(:disabled){background:var(--water-deep);border-color:var(--water-deep)}
+.btn.tape{background:var(--tape);border-color:var(--tape);color:var(--tape-ink)}
+.btn.tape:hover:not(:disabled){filter:brightness(.95);background:var(--tape)}
+.btn.wide{grid-column:1/-1}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.quiet{border-color:var(--line);font-weight:500}
+.msg{background:var(--paper);border-left:4px solid var(--tape);padding:.55rem .75rem;border-radius:4px;font-size:.92rem;margin:.2rem 0 .8rem;min-height:2.6em}
+.readouts{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem}
+.ro{background:var(--paper);border-radius:8px;padding:.5rem .6rem}
+.ro .k{font-size:.78rem;color:var(--ink-soft)}
+.ro .v{font-size:1.15rem;font-weight:600;font-variant-numeric:tabular-nums}
+.ro.full{grid-column:1/-1}
+.clock{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;font-variant-numeric:tabular-nums;margin-bottom:.5rem}
+.clock b{font-size:1.25rem}
+.checklist{list-style:none;padding:0;margin:0;font-size:.88rem;counter-reset:step}
+.checklist li{display:flex;gap:.5rem;padding:.22rem 0;color:var(--ink-soft);counter-increment:step}
+.checklist li::before{content:counter(step);flex:none;width:1.4rem;height:1.4rem;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.75rem;font-weight:600}
+.checklist li.done{color:var(--ink)}
+.checklist li.done::before{content:"✓";background:var(--good);border-color:var(--good);color:#fff}
+details.steps summary{cursor:pointer;font-weight:600;font-size:.9rem;margin-bottom:.3rem}
+
+.below{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-top:1rem}
+@media (max-width:920px){.below{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.card h3{margin-bottom:.4rem}
+.card .sub{color:var(--ink-soft);font-size:.88rem;margin-top:0}
+.chart svg{width:100%;height:auto;display:block}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{padding:.4rem .5rem;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--ink-soft);font-size:.78rem}
+td.empty{color:var(--ink-soft);white-space:normal}
+.write{margin-top:1rem}
+textarea{width:100%;min-height:5.5em;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);padding:.6rem .7rem;resize:vertical;line-height:1.5}
+textarea:focus{border-color:var(--water-deep)}
+label.q{display:block;font-weight:600;margin:.2rem 0 .35rem}
+.frame{font-size:.86rem;color:var(--ink-soft);margin:.1rem 0 .45rem;padding-left:.7rem;border-left:3px solid var(--line)}
+.frame span{display:block}
+.frame span[lang="es"]{font-style:italic}
+
+.scale{margin-top:1rem}
+.bars{display:grid;gap:.45rem;margin-top:.6rem}
+.bar{display:grid;grid-template-columns:minmax(9rem,13rem) 1fr 4.5rem;align-items:center;gap:.6rem;font-size:.9rem}
+.bar .track{background:var(--bench);border-radius:4px;height:16px;overflow:hidden}
+.bar .fill{height:100%;background:var(--water-deep);border-radius:4px}
+.bar .val{font-weight:600;text-align:right}
+@media (max-width:560px){.bar{grid-template-columns:1fr 4rem}.bar .track{grid-column:1/-1;grid-row:2}}
+.calc{display:grid;gap:.6rem;max-width:560px}
+.calc .answer{font-size:1.05rem;background:var(--paper);border-radius:8px;padding:.6rem .8rem}
+.calc .answer b{font-size:1.4rem}
+
+.intro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1rem}
+@media (max-width:860px){.intro-grid{grid-template-columns:1fr}}
+.intro-grid .card canvas{width:100%;height:240px;display:block;background:var(--bench);border-radius:8px}
+.state-name{display:flex;justify-content:space-between;align-items:baseline;margin:.5rem 0}
+.state-name b{font-size:1.25rem}
+.state-name span{color:var(--ink-soft);font-style:italic}
+.vocab td:first-child{font-weight:600}
+.vocab td{white-space:normal}
+.next{margin-top:1.4rem;display:flex;justify-content:flex-end}
+.next a{text-decoration:none}
+.toggle{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.4rem 0}
+.toggle input{width:1.1rem;height:1.1rem;accent-color:var(--water-deep)}
+.copy-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:1rem}
+.status{font-size:.9rem;color:var(--good)}
+.names{display:flex;flex-wrap:wrap;gap:.8rem;margin-bottom:1rem}
+.names label{display:flex;flex-direction:column;font-size:.85rem;font-weight:600}
+.names input{border:1.5px solid var(--line);border-radius:8px;padding:.45rem .6rem;background:var(--surface);min-width:14rem;font-weight:400}
+.evidence{font-size:.9rem;background:var(--paper);border-radius:8px;padding:.7rem .9rem}
+.evidence ul{margin:.3rem 0 0;padding-left:1.1rem}
+
+/* SVG parts */
+.s-glass{fill:var(--glass);stroke:var(--glass-edge);stroke-width:2}
+.s-edge{fill:none;stroke:var(--glass-edge);stroke-width:2.5}
+.s-water{fill:var(--water);opacity:.55}
+.s-surface{stroke:var(--water-deep);stroke-width:2}
+.s-ice{fill:var(--ice);stroke:var(--ice-edge);stroke-width:1.5}
+.s-ice-back{fill:var(--ice);stroke:var(--ice-edge);stroke-width:1.2;opacity:.7}
+.s-shine{fill:#fff;opacity:.75}
+.s-clay{fill:var(--clay);stroke:var(--clay-dark);stroke-width:1.5}
+.s-tape{fill:var(--tape);opacity:.95}
+.s-tape-text{font:600 17px Caveat,"Comic Sans MS",cursive;fill:var(--tape-ink)}
+.s-pencil{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:5 4;opacity:.8}
+.s-tick{stroke:var(--ink-soft);stroke-width:1}
+.s-ticktext{font:400 10px Lexend,sans-serif;fill:var(--ink-soft)}
+.s-label{font:500 13px Lexend,sans-serif;fill:var(--ink)}
+.s-small{font:400 11px Lexend,sans-serif;fill:var(--ink-soft)}
+.s-lamp{fill:var(--ink);opacity:.9}
+.s-bulb-off{fill:var(--line)}
+.s-bulb-on{fill:#FFD45C}
+.s-glow{fill:var(--glow)}
+.s-heatwave{fill:none;stroke:var(--heat);stroke-width:2;opacity:.6;stroke-linecap:round}
+.s-drop{fill:var(--water-deep)}
+.s-cork{fill:var(--cork);stroke:var(--clay-dark);stroke-width:1.2}
+.s-tube{fill:var(--glass);stroke:var(--glass-edge);stroke-width:1.5}
+.s-thermo{fill:var(--surface);stroke:var(--glass-edge);stroke-width:1.5}
+.s-red{fill:var(--thermo)}
+.s-lid{fill:var(--glass);stroke:var(--glass-edge);stroke-width:2.5}
+.s-vapor{fill:none;stroke:var(--ink-soft);stroke-width:2;stroke-linecap:round}
+.s-bench{stroke:var(--ink-soft);stroke-width:2}
+.s-sun{fill:#FFC93C}
+.s-sky{fill:var(--bench)}
+.dye-blue{fill:var(--dye-blue);opacity:.7}.dye-red{fill:var(--dye-red);opacity:.7}.dye-green{fill:var(--dye-green);opacity:.7}
+.c-axis{stroke:var(--ink-soft);stroke-width:1}
+.c-grid{stroke:var(--line);stroke-width:1}
+.c-text{font:400 11px Lexend,sans-serif;fill:var(--ink-soft)}
+.c-title{font:500 12px Lexend,sans-serif;fill:var(--ink)}
+.c-sea{fill:none;stroke:var(--water-deep);stroke-width:3;stroke-linejoin:round}
+.c-land{fill:none;stroke:var(--clay);stroke-width:3;stroke-linejoin:round}
+.c-prev{fill:none;stroke:var(--ink-soft);stroke-width:2;opacity:.45;stroke-dasharray:4 3}
+.c-zero{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3;opacity:.5}
+.c-dot-sea{fill:var(--water-deep)}.c-dot-land{fill:var(--clay)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="6" width="32" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M5 23 Q12 20 20 23 T35 23 V33 H5Z" fill="#5FAED6"/><rect x="13" y="15" width="10" height="10" rx="2" fill="#F2FBFF" stroke="#8CC7E3" stroke-width="1.5"/><rect x="24" y="20" width="12" height="5" fill="#F2C230" transform="rotate(-4 30 22)"/></svg>
+      <div><h1>Melting Ice, Rising Sea?</h1><p>Virtual lab bench · Concept 1.3: Earth’s Interacting Systems</p></div>
+    </div>
+    <nav class="tabs" aria-label="Lab stations">
+      <a href="#start" data-link="start">Before you start</a>
+      <a href="#ice" data-link="ice"><span class="n">1</span>Land ice vs. sea ice</a>
+      <a href="#warming" data-link="warming"><span class="n">2</span>Warming water</a>
+      <a href="#evaporation" data-link="evaporation"><span class="n">3</span>Evaporation</a>
+      <a href="#reflect" data-link="reflect">Reflect</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ========== START ========== -->
+<section data-view="start">
+  <h2>Where does sea level rise come from?</h2>
+  <p class="lead">You’ll test three possible causes on a virtual lab bench: melting ice, warming water, and evaporation. First, think about water and energy.</p>
+
+  <div class="intro-grid">
+    <div class="card">
+      <h3>Water comes in three states</h3>
+      <p class="sub">Slide to add energy from the sun. Watch what the water particles do.</p>
+      <canvas id="particles" aria-label="Animation of water particles changing state as energy is added" role="img"></canvas>
+      <div class="state-name"><b id="stateName">Solid ice</b><span lang="es" id="stateEs">hielo sólido</span></div>
+      <div class="range-row"><span aria-hidden="true">❄️</span><input type="range" id="energy" min="0" max="100" value="12" aria-label="Energy from the sun"><span aria-hidden="true">☀️</span></div>
+      <div class="write">
+        <label class="q" for="pre1">Energy from the sun can melt solid ice into liquid water. How could this input of energy affect sea levels?</label>
+        <textarea id="pre1" data-save="pre1"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Arctic freeze-thaw cycle</h3>
+      <p class="sub">At the North Pole, ice freezes from the ocean in winter and melts again in summer. Move through the year.</p>
+      <svg id="arctic" viewBox="0 0 600 270" role="img" aria-label="Arctic Ocean with sea ice that grows and shrinks through the year"></svg>
+      <div class="range-row"><input type="range" id="month" min="0" max="11" value="2" aria-label="Month"><output id="monthOut">March</output></div>
+      <label class="toggle"><input type="checkbox" id="showMark"> Show a tape mark at the sea level</label>
+      <div class="write">
+        <label class="q" for="pre2">How do you think this freeze-thaw cycle affects sea levels?</label>
+        <textarea id="pre2" data-save="pre2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem">
+    <h3>Predict</h3>
+    <label class="q" for="pre3">What factors should scientists explore when investigating changes in sea levels?</label>
+    <textarea id="pre3" data-save="pre3"></textarea>
+  </div>
+
+  <div class="card" style="margin-top:1rem">
+    <h3>Words for this lab</h3>
+    <div class="tablewrap"><table class="vocab">
+      <thead><tr><th>Word</th><th>En español</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td>sea level</td><td lang="es">nivel del mar</td><td>The height of the ocean’s surface</td></tr>
+        <tr><td>sea ice</td><td lang="es">hielo marino</td><td>Ice floating in the ocean</td></tr>
+        <tr><td>land ice (glacier)</td><td lang="es">hielo terrestre (glaciar)</td><td>Ice sitting on top of land</td></tr>
+        <tr><td>melt</td><td lang="es">derretir</td><td>Change from solid to liquid</td></tr>
+        <tr><td>thermal expansion</td><td lang="es">expansión térmica</td><td>A material takes up more space when it warms</td></tr>
+        <tr><td>evaporation</td><td lang="es">evaporación</td><td>Liquid water changes into water vapor</td></tr>
+        <tr><td>hydrosphere · geosphere · atmosphere</td><td lang="es">hidrosfera · geosfera · atmósfera</td><td>Earth’s water · rock and land · air</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="next"><a class="btn primary" href="#ice">Go to Station 1: Land ice vs. sea ice</a></div>
+</section>
+
+<!-- ========== STATION 1 ========== -->
+<section data-view="ice">
+  <div class="station-head">
+    <div><h2>Station 1: Land ice vs. sea ice</h2>
+    <p class="lead">Both tubs are the ocean. In one, the ice floats in the water. In the other, the ice sits on “land” made of clay. Which one raises sea level when it melts?</p></div>
+  </div>
+  <div class="lab">
+    <div class="bench"><svg id="s1svg" viewBox="0 0 790 400" role="img" aria-label="Two tubs of water. Left tub has floating ice. Right tub has ice on a clay block."></svg></div>
+    <aside class="panel" aria-label="Station 1 controls">
+      <div class="group"><span class="lbl">Ocean water</span><div class="seg" id="s1ocean"></div></div>
+      <div class="group"><span class="lbl">Starting water temperature</span><div class="seg" id="s1temp"></div></div>
+      <div class="group"><span class="lbl">Heat source</span><div class="seg" id="s1heat"></div></div>
+      <div class="group"><span class="lbl" id="s1cubesLbl">Ice cubes in each tub</span>
+        <div class="range-row"><input type="range" id="s1cubes" min="4" max="10" value="8" aria-labelledby="s1cubesLbl"><output id="s1cubesOut">8</output></div></div>
+      <div class="actions">
+        <button class="btn" id="s1addSea">Add ice to the water</button>
+        <button class="btn" id="s1addLand">Add ice on the land</button>
+        <button class="btn tape" id="s1markSea">Mark sea ice tub</button>
+        <button class="btn tape" id="s1markLand">Mark land ice tub</button>
+        <button class="btn primary" id="s1go">Start timer</button>
+        <button class="btn quiet" id="s1reset">Reset tubs</button>
+      </div>
+      <div class="msg" id="s1msg" role="status" aria-live="polite"></div>
+      <div class="clock"><span>Time: <b id="s1time">0.0 min</b></span><span class="seg" id="s1speed"></span></div>
+      <div class="readouts">
+        <div class="ro"><div class="k">Sea ice tub: change since mark</div><div class="v" id="s1seaChg">—</div></div>
+        <div class="ro"><div class="k">Land ice tub: change since mark</div><div class="v" id="s1landChg">—</div></div>
+        <div class="ro"><div class="k">Sea ice left</div><div class="v" id="s1seaLeft">—</div></div>
+        <div class="ro"><div class="k">Land ice left</div><div class="v" id="s1landLeft">—</div></div>
+      </div>
+      <details class="steps" open><summary>Procedure</summary>
+        <ol class="checklist" id="s1check"></ol>
+      </details>
+    </aside>
+  </div>
+
+  <div class="card write">
+    <label class="q" for="s1pred">Predict: what will happen to the water level in each tub when the ice melts? Why?</label>
+    <textarea id="s1pred" data-save="s1pred"></textarea>
+  </div>
+
+  <div class="below">
+    <div class="card chart"><h3>Water level change over time</h3><p class="sub">Measured from the moment you started the timer, in millimeters.</p><svg id="s1chart" viewBox="0 0 520 250" role="img" aria-label="Line graph of water level change"></svg></div>
+    <div class="card"><h3>Data table</h3><p class="sub">A trial is saved when all the ice melts. Change one setting at a time and compare.</p>
+      <div class="tablewrap"><table><thead><tr><th>Trial</th><th>Ocean</th><th>Water</th><th>Heat</th><th>Cubes</th><th>Sea ice tub</th><th>Land ice tub</th></tr></thead><tbody id="s1table"></tbody></table></div>
+      <p><button class="btn quiet" id="s1clear" style="margin-top:.6rem">Clear table</button></p>
+    </div>
+  </div>
+
+  <div class="card write">
+    <label class="q" for="s1obs">Observations: describe what happened in both tubs. How does each tub model melting ice at the poles?</label>
+    <textarea id="s1obs" data-save="s1obs"></textarea>
+    <label class="q" for="s1limit" style="margin-top:.8rem">How is this tub model different from the real ocean? (limitations)</label>
+    <textarea id="s1limit" data-save="s1limit"></textarea>
+  </div>
+
+  <div class="card scale">
+    <h3>Scale it up: how much sea level is stored in real ice?</h3>
+    <p class="sub">Approximate global sea level rise if all of each ice source melted (scientists’ estimates).</p>
+    <div class="bars">
+      <div class="bar"><span>Antarctic ice sheet (land ice)</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">≈ 58 m</span></div>
+      <div class="bar"><span>Greenland ice sheet (land ice)</span><div class="track"><div class="fill" style="width:12.8%"></div></div><span class="val">≈ 7 m</span></div>
+      <div class="bar"><span>Mountain glaciers (land ice)</span><div class="track"><div class="fill" style="width:1%"></div></div><span class="val">≈ 0.3 m</span></div>
+      <div class="bar"><span>Arctic sea ice (floating)</span><div class="track"><div class="fill" style="width:0"></div></div><span class="val">≈ 0 m</span></div>
+    </div>
+  </div>
+  <div class="next"><a class="btn primary" href="#warming">Go to Station 2: Warming water</a></div>
+</section>
+
+<!-- ========== STATION 2 ========== -->
+<section data-view="warming">
+  <div class="station-head">
+    <div><h2>Station 2: Warming water</h2>
+    <p class="lead">No ice this time. A flask full of very cold water sits under a lamp. A thin glass tube lets you see tiny changes in the water’s volume.</p></div>
+  </div>
+  <div class="lab">
+    <div class="bench"><svg id="s2svg" viewBox="0 0 470 440" role="img" aria-label="Flask of cold water with a cork, thin tube, and thermometer under a lamp"></svg></div>
+    <aside class="panel" aria-label="Station 2 controls">
+      <div class="group"><span class="lbl">Water in the flask</span><div class="seg" id="s2water"></div></div>
+      <div class="group"><span class="lbl" id="s2t0Lbl">Starting temperature</span>
+        <div class="range-row"><input type="range" id="s2t0" min="4" max="25" step="1" value="6" aria-labelledby="s2t0Lbl"><output id="s2t0Out">6 °C</output></div></div>
+      <div class="group"><span class="lbl" id="s2distLbl">Lamp distance</span>
+        <div class="range-row"><input type="range" id="s2dist" min="10" max="40" step="5" value="15" aria-labelledby="s2distLbl"><output id="s2distOut">15 cm</output></div></div>
+      <div class="group"><span class="lbl">Aim the lamp at</span><div class="seg" id="s2aim"></div></div>
+      <div class="group"><span class="lbl">Food coloring</span><div class="seg" id="s2dye"></div></div>
+      <div class="actions">
+        <button class="btn" id="s2fill">Fill the flask</button>
+        <button class="btn" id="s2cork">Insert the cork</button>
+        <button class="btn tape" id="s2mark">Mark the tube</button>
+        <button class="btn primary" id="s2go">Turn lamp on</button>
+        <button class="btn" id="s2save">Save this trial</button>
+        <button class="btn quiet" id="s2reset">Empty the flask</button>
+      </div>
+      <div class="msg" id="s2msg" role="status" aria-live="polite"></div>
+      <div class="clock"><span>Time with lamp on: <b id="s2time">0.0 min</b></span><span class="seg" id="s2speed"></span></div>
+      <div class="readouts">
+        <div class="ro"><div class="k">Water temperature</div><div class="v" id="s2temp">—</div></div>
+        <div class="ro"><div class="k">Rise in tube since mark</div><div class="v" id="s2rise">—</div></div>
+        <div class="ro full"><div class="k">Extra space the water takes up</div><div class="v" id="s2dv">—</div></div>
+      </div>
+      <details class="steps" open><summary>Procedure</summary><ol class="checklist" id="s2check"></ol></details>
+    </aside>
+  </div>
+
+  <div class="card write">
+    <label class="q" for="s2pred">Hypothesis: what will happen to the water level in the tube when the water is heated? Why?</label>
+    <textarea id="s2pred" data-save="s2pred"></textarea>
+  </div>
+
+  <div class="below">
+    <div class="card chart"><h3>Height in tube vs. temperature</h3><p class="sub">Your current run is solid. Saved trials are dashed so you can compare.</p><svg id="s2chart" viewBox="0 0 520 250" role="img" aria-label="Graph of water height in tube against temperature"></svg></div>
+    <div class="card"><h3>Data table</h3><p class="sub">Try fresh vs. salty water, near vs. far, or water vs. neck.</p>
+      <div class="tablewrap"><table><thead><tr><th>Trial</th><th>Water</th><th>Start</th><th>End</th><th>Lamp</th><th>Aim</th><th>Time</th><th>Rise</th></tr></thead><tbody id="s2table"></tbody></table></div>
+      <p><button class="btn quiet" id="s2clear" style="margin-top:.6rem">Clear table</button></p>
+    </div>
+  </div>
+
+  <div class="card write">
+    <label class="q" for="s2obs">Observations: describe what happened and relate it to sea level rise. Which water is a better model of the ocean, fresh or salty? How could you improve the model?</label>
+    <textarea id="s2obs" data-save="s2obs"></textarea>
+  </div>
+
+  <div class="card scale">
+    <h3>Scale it up: warming the real ocean</h3>
+    <p class="sub">Your flask held 250 mL. The ocean is about 3,700 m deep on average. Most warming so far has happened in the upper ocean.</p>
+    <div class="calc">
+      <div class="group"><span class="lbl" id="cDepthLbl">Depth of ocean layer that warms</span><div class="range-row"><input type="range" id="cDepth" min="100" max="3700" step="100" value="700" aria-labelledby="cDepthLbl"><output id="cDepthOut">700 m</output></div></div>
+      <div class="group"><span class="lbl" id="cWarmLbl">How much that layer warms</span><div class="range-row"><input type="range" id="cWarm" min="0.1" max="3" step="0.1" value="1" aria-labelledby="cWarmLbl"><output id="cWarmOut">1.0 °C</output></div></div>
+      <div class="answer" id="cAnswer"></div>
+      <p class="sub">Estimate uses an average expansion for seawater. Real expansion changes with temperature, saltiness, and depth.</p>
+    </div>
+  </div>
+  <div class="next"><a class="btn primary" href="#evaporation">Go to Station 3: Evaporation</a></div>
+</section>
+
+<!-- ========== STATION 3 ========== -->
+<section data-view="evaporation">
+  <div class="station-head">
+    <div><h2>Station 3: Evaporation</h2>
+    <p class="lead">Reflect question 4 asks you to design a test: does extra energy move water from the hydrosphere into the atmosphere, and could that change sea level? Here is one possible procedure. One tub is open. The other has a lid, like a small greenhouse.</p></div>
+  </div>
+  <div class="lab">
+    <div class="bench"><svg id="s3svg" viewBox="0 0 790 360" role="img" aria-label="Two tubs of water, one open and one with a lid"></svg></div>
+    <aside class="panel" aria-label="Station 3 controls">
+      <div class="group"><span class="lbl">Heat source</span><div class="seg" id="s3heat"></div></div>
+      <div class="group"><span class="lbl">Starting water temperature</span><div class="seg" id="s3temp"></div></div>
+      <div class="actions">
+        <button class="btn tape" id="s3mark">Mark both tubs</button>
+        <button class="btn primary" id="s3go">Start timer</button>
+        <button class="btn quiet wide" id="s3reset">Reset tubs</button>
+      </div>
+      <div class="msg" id="s3msg" role="status" aria-live="polite"></div>
+      <div class="clock"><span>Time: <b id="s3time">0.0 hours</b></span><span class="seg" id="s3speed"></span></div>
+      <div class="readouts">
+        <div class="ro"><div class="k">Open tub: change</div><div class="v" id="s3openChg">—</div></div>
+        <div class="ro"><div class="k">Lid tub: change</div><div class="v" id="s3lidChg">—</div></div>
+        <div class="ro"><div class="k">Open tub: water vapor that escaped</div><div class="v" id="s3openEvap">—</div></div>
+        <div class="ro"><div class="k">Lid tub: air humidity</div><div class="v" id="s3hum">—</div></div>
+        <div class="ro full"><div class="k">Lid tub: water that evaporated, then dripped back down</div><div class="v" id="s3cycle">—</div></div>
+      </div>
+    </aside>
+  </div>
+  <div class="below">
+    <div class="card chart"><h3>Water level change over time</h3><p class="sub">In millimeters, since you started the timer.</p><svg id="s3chart" viewBox="0 0 520 250" role="img" aria-label="Graph of water level change in open and lid tubs"></svg></div>
+    <div class="card write" style="margin-top:0">
+      <label class="q" for="s3obs">Which tub is more like planet Earth? Think about where evaporated water goes in each tub, and where it goes on Earth.</label>
+      <textarea id="s3obs" data-save="s3obs"></textarea>
+      <label class="q" for="s3limit" style="margin-top:.8rem">What can’t this procedure show? (limitations)</label>
+      <textarea id="s3limit" data-save="s3limit"></textarea>
+    </div>
+  </div>
+  <div class="next"><a class="btn primary" href="#reflect">Go to Reflect</a></div>
+</section>
+
+<!-- ========== REFLECT ========== -->
+<section data-view="reflect">
+  <h2>Reflect</h2>
+  <p class="lead">Use your data from all three stations as evidence. The sentence frames are there if you want them.</p>
+  <div class="names">
+    <label>Name<input id="stuName" data-save="stuName" autocomplete="name"></label>
+    <label>Period<input id="stuPeriod" data-save="stuPeriod"></label>
+  </div>
+  <div class="evidence" id="evidence"></div>
+
+  <div class="card write">
+    <label class="q" for="r1">1. What new information did you learn by conducting these experiments?</label>
+    <p class="frame"><span>Before this lab I thought ___. Now I know ___ because in my model ___.</span><span lang="es">Antes de este laboratorio pensaba que ___. Ahora sé que ___ porque en mi modelo ___.</span></p>
+    <textarea id="r1" data-save="r1"></textarea>
+  </div>
+  <div class="card write">
+    <label class="q" for="r2">2. What is the relationship between the results of the two experiments? How do the causes compare? How do the effects compare?</label>
+    <p class="frame"><span>Both experiments were caused by ___. In Station 1 the water rose because ___. In Station 2 the water rose because ___.</span><span lang="es">Los dos experimentos fueron causados por ___. En la Estación 1 el agua subió porque ___. En la Estación 2 el agua subió porque ___.</span></p>
+    <textarea id="r2" data-save="r2"></textarea>
+  </div>
+  <div class="card write">
+    <label class="q" for="r3">3. Using your model as a base, what are some of the interactions between the geosphere, hydrosphere, and atmosphere that relate to changing sea levels?</label>
+    <p class="frame"><span>Heat from the atmosphere causes ___ on the geosphere to ___, which makes the hydrosphere ___.</span><span lang="es">El calor de la atmósfera hace que ___ en la geosfera ___, lo cual hace que la hidrosfera ___.</span></p>
+    <textarea id="r3" data-save="r3"></textarea>
+  </div>
+  <div class="card write">
+    <label class="q" for="r4">4. How does the energy associated with global warming affect the movement of water from the hydrosphere to the atmosphere? Could this affect sea levels? Devise a procedure for testing this possibility and discuss its limitations.</label>
+    <p class="frame"><span>Extra energy makes more water ___ from the ocean into the ___. My procedure would ___. One limitation is ___.</span><span lang="es">La energía extra hace que más agua se ___ del océano a la ___. Mi procedimiento sería ___. Una limitación es ___.</span></p>
+    <textarea id="r4" data-save="r4"></textarea>
+  </div>
+  <div class="copy-row">
+    <button class="btn primary" id="copyAll">Copy all my answers and data</button>
+    <button class="btn quiet" id="wipe">Start over on this device</button>
+    <span class="status" id="copyStatus" role="status" aria-live="polite"></span>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+'use strict';
+var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- storage ---------- */
+var store = {
+  get: function(k, d){ try{ var v = localStorage.getItem('mirs:'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set: function(k, v){ try{ localStorage.setItem('mirs:'+k, JSON.stringify(v)); }catch(e){} }
+};
+document.querySelectorAll('[data-save]').forEach(function(t){
+  var k = t.getAttribute('data-save');
+  t.value = store.get('txt:'+k, '');
+  t.addEventListener('input', function(){ store.set('txt:'+k, t.value); if (k==='s1pred') S1.ui(); if (k==='s2pred') S2.ui(); });
+});
+function txt(id){ var e=document.getElementById(id); return e ? e.value.trim() : ''; }
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function fmt(n, d){ d = d==null?1:d; var s = (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toFixed(d); if (parseFloat(s)===0) s=(0).toFixed(d); return s.replace('-', '−'); }
+function sgn(n, d){ var s = fmt(n,d); if (s.charAt(0)!=='−' && parseFloat(s)!==0) s='+'+s; return s; }
+function seg(container, opts, get, set){
+  container.innerHTML='';
+  opts.forEach(function(o){
+    var b=document.createElement('button'); b.type='button'; b.textContent=o[1]; b.dataset.v=o[0];
+    b.addEventListener('click', function(){ if(!b.disabled){ set(o[0]); api.refresh(); } });
+    container.appendChild(b);
+  });
+  var api = {
+    refresh: function(){ Array.prototype.forEach.call(container.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.v===String(get()))); }); },
+    disable: function(d){ Array.prototype.forEach.call(container.children, function(b){ b.disabled=d; }); }
+  };
+  api.refresh(); return api;
+}
+function checklist(ol, items){
+  ol.innerHTML = items.map(function(it){ return '<li class="'+(it[1]?'done':'')+'">'+it[0]+'</li>'; }).join('');
+}
+function speedSeg(id, obj){ return seg($(id), [[1,'1×'],[2,'2×'],[4,'4×'],[8,'8×']], function(){return obj.speed;}, function(v){obj.speed=+v;}); }
+
+/* generic line chart */
+function lineChart(svg, o){
+  var W=520,H=250,L=52,R=14,T=14,B=42, pw=W-L-R, ph=H-T-B;
+  var xs=[], ys=[];
+  o.series.forEach(function(s){ s.pts.forEach(function(p){ xs.push(p[0]); ys.push(p[1]); }); });
+  var xmin = o.xMin!=null?o.xMin:0, xmax = Math.max(o.xMaxFloor||1, xs.length?Math.max.apply(null,xs):0);
+  if (o.xMinAuto && xs.length) xmin = Math.min(o.xMin, Math.min.apply(null,xs));
+  var ymin = Math.min(o.yMinFloor, ys.length?Math.min.apply(null,ys):0), ymax = Math.max(o.yMaxFloor, ys.length?Math.max.apply(null,ys):0);
+  var span=ymax-ymin; ymax+=span*0.06; if (ymin<0) ymin-=span*0.06;
+  function nice(r){ var e=Math.pow(10,Math.floor(Math.log10(r/4))); var m=r/4/e; return (m<1.5?1:m<3.5?2:m<7.5?5:10)*e; }
+  var ystep=nice(ymax-ymin), xstep=nice(xmax-xmin);
+  function X(v){ return L+(v-xmin)/(xmax-xmin)*pw; } function Y(v){ return T+ph-(v-ymin)/(ymax-ymin)*ph; }
+  var h='';
+  for (var y=Math.ceil(ymin/ystep)*ystep; y<=ymax+1e-9; y+=ystep){ h+='<line class="c-grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(y)+'" y2="'+Y(y)+'"/><text class="c-text" x="'+(L-6)+'" y="'+(Y(y)+4)+'" text-anchor="end">'+fmt(y, ystep<1?1:0)+'</text>'; }
+  for (var x=Math.ceil(xmin/xstep)*xstep; x<=xmax+1e-9; x+=xstep){ h+='<line class="c-axis" x1="'+X(x)+'" x2="'+X(x)+'" y1="'+(T+ph)+'" y2="'+(T+ph+4)+'"/><text class="c-text" x="'+X(x)+'" y="'+(T+ph+16)+'" text-anchor="middle">'+fmt(x, xstep<1?1:0)+'</text>'; }
+  if (ymin<0 && ymax>0) h+='<line class="c-zero" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(0)+'" y2="'+Y(0)+'"/>';
+  h+='<line class="c-axis" x1="'+L+'" x2="'+L+'" y1="'+T+'" y2="'+(T+ph)+'"/><line class="c-axis" x1="'+L+'" x2="'+(W-R)+'" y1="'+(T+ph)+'" y2="'+(T+ph)+'"/>';
+  h+='<text class="c-title" x="'+(L+pw/2)+'" y="'+(H-6)+'" text-anchor="middle">'+o.xLabel+'</text>';
+  h+='<text class="c-title" transform="translate(13 '+(T+ph/2)+') rotate(-90)" text-anchor="middle">'+o.yLabel+'</text>';
+  o.series.forEach(function(s){
+    if (!s.pts.length) return;
+    h+='<polyline class="'+s.cls+'" points="'+s.pts.map(function(p){return X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>';
+  });
+  var lx=L+10;
+  o.series.forEach(function(s){ if(!s.legend) return; h+='<line class="'+s.cls+'" x1="'+lx+'" x2="'+(lx+22)+'" y1="'+(T+10)+'" y2="'+(T+10)+'"/><text class="c-text" x="'+(lx+28)+'" y="'+(T+14)+'">'+s.legend+'</text>'; lx+=34+s.legend.length*6.2; });
+  if (!xs.length) h+='<text class="c-text" x="'+(L+pw/2)+'" y="'+(T+ph/2)+'" text-anchor="middle">Start the timer to collect data</text>';
+  svg.innerHTML=h;
+}
+
+/* ruler on a tub */
+function ruler(x, yb, pxPerCm, maxCm){
+  var h='';
+  for (var i=0;i<=maxCm*2;i++){ var y=yb-i*pxPerCm/2, big=i%2===0;
+    h+='<line class="s-tick" x1="'+(x-(big?10:5))+'" x2="'+x+'" y1="'+y+'" y2="'+y+'"/>';
+    if (big && (i/2)%2===0) h+='<text class="s-ticktext" x="'+(x-13)+'" y="'+(y+3)+'" text-anchor="end">'+(i/2)+'</text>';
+  }
+  return h+'<text class="s-ticktext" x="'+(x-13)+'" y="'+(yb-maxCm*pxPerCm-10)+'" text-anchor="end">cm</text>';
+}
+function tapeMark(x1, x2, y, label){
+  var cx=x2-18;
+  return '<line class="s-pencil" x1="'+x1+'" x2="'+x2+'" y1="'+y+'" y2="'+y+'"/>'+
+    '<g transform="rotate(-3 '+cx+' '+y+')"><rect class="s-tape" x="'+(cx-36)+'" y="'+(y-9)+'" width="72" height="18" rx="1.5"/>'+
+    '<text class="s-tape-text" x="'+cx+'" y="'+(y+5)+'" text-anchor="middle">'+(label||'start')+'</text></g>';
+}
+function lamp(cx, top, on){
+  return '<line class="s-tick" x1="'+cx+'" x2="'+cx+'" y1="0" y2="'+top+'" style="stroke-width:3"/>'+
+    '<path class="s-lamp" d="M'+(cx-28)+' '+top+' L'+(cx+28)+' '+top+' L'+(cx+44)+' '+(top+34)+' L'+(cx-44)+' '+(top+34)+' Z"/>'+
+    '<circle class="'+(on?'s-bulb-on':'s-bulb-off')+'" cx="'+cx+'" cy="'+(top+36)+'" r="9"/>';
+}
+function dryer(cx, top, on, now){
+  var h='<rect class="s-lamp" x="'+(cx-40)+'" y="'+top+'" width="70" height="26" rx="13"/><rect class="s-lamp" x="'+(cx+12)+'" y="'+(top+20)+'" width="14" height="30" rx="4"/><rect class="s-lamp" x="'+(cx-50)+'" y="'+(top+5)+'" width="14" height="16" rx="3"/>';
+  if (on){ for (var i=0;i<3;i++){ var off=((now/300)+i*7)%14; h+='<path class="s-heatwave" d="M'+(cx-24+i*16)+' '+(top+34+off)+' q 6 8 0 16 q -6 8 0 16"/>'; } }
+  return h;
+}
+
+/* ---------- routing ---------- */
+var VIEWS=['start','ice','warming','evaporation','reflect'];
+var view='start';
+function route(){
+  var v=(location.hash||'').replace('#','');
+  if (VIEWS.indexOf(v)<0) v='start';
+  view=v;
+  document.querySelectorAll('[data-view]').forEach(function(s){ s.classList.toggle('active', s.getAttribute('data-view')===v); });
+  document.querySelectorAll('[data-link]').forEach(function(a){ if (a.getAttribute('data-link')===v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  if (v==='reflect') renderEvidence();
+  if (v==='start') sizeCanvas();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', route);
+
+/* ================= INTRO: particles ================= */
+var cv=$('particles'), ctx=cv.getContext('2d'), parts=[], CW=400, CH=240;
+function sizeCanvas(){
+  var r=cv.getBoundingClientRect(); if (!r.width) return;
+  var dpr=window.devicePixelRatio||1; CW=r.width; CH=r.height;
+  cv.width=CW*dpr; cv.height=CH*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  var cols=7, rows=5, sp=26, ox=CW/2-(cols-1)*sp/2, oy=CH-24-(rows-1)*sp;
+  if (!parts.length){ for (var i=0;i<cols*rows;i++) parts.push({x:0,y:0,vx:0,vy:0}); }
+  parts.forEach(function(p,i){ p.gx=ox+(i%cols)*sp; p.gy=oy+Math.floor(i/cols)*sp; if(!p.x){p.x=p.gx;p.y=p.gy;} });
+}
+window.addEventListener('resize', sizeCanvas);
+var energy=12;
+function stateOf(e){ return e<34?0:e<70?1:2; }
+var STATES=[['Solid ice','hielo sólido'],['Liquid water','agua líquida'],['Water vapor (gas)','vapor de agua (gas)']];
+$('energy').addEventListener('input', function(){ energy=+this.value; var s=STATES[stateOf(energy)]; $('stateName').textContent=s[0]; $('stateEs').textContent=s[1]; });
+function drawParticles(){
+  if (!CW) return;
+  var st=stateOf(energy), cs=getComputedStyle(document.documentElement);
+  ctx.clearRect(0,0,CW,CH);
+  var r=9;
+  parts.forEach(function(p){
+    if (st===0){
+      var j=reduceMotion?0:(0.6+energy/12);
+      p.x+=(p.gx+(Math.random()-.5)*j-p.x)*0.25; p.y+=(p.gy+(Math.random()-.5)*j-p.y)*0.25; p.vx=0; p.vy=0;
+    } else {
+      var sp = st===1 ? 0.8+(energy-34)/30 : 2.2+(energy-70)/10;
+      if (reduceMotion) sp*=0.3;
+      p.vx+=(Math.random()-.5)*0.6; p.vy+=(Math.random()-.5)*0.6;
+      if (st===1) p.vy+=0.08;
+      var m=Math.hypot(p.vx,p.vy)||1; if (m>sp){ p.vx*=sp/m; p.vy*=sp/m; }
+      if (st===2 && m<sp*0.7){ p.vx*=1.15; p.vy*=1.15; }
+      p.x+=p.vx; p.y+=p.vy;
+      var top = st===1 ? CH*0.48 : r;
+      if (p.x<r){p.x=r;p.vx=Math.abs(p.vx);} if (p.x>CW-r){p.x=CW-r;p.vx=-Math.abs(p.vx);}
+      if (p.y<top){ p.y+= (top-p.y)*0.2; p.vy=Math.abs(p.vy); } if (p.y>CH-r){p.y=CH-r;p.vy=-Math.abs(p.vy);}
+    }
+  });
+  if (st===0){
+    ctx.strokeStyle=cs.getPropertyValue('--ice-edge').trim(); ctx.lineWidth=2;
+    parts.forEach(function(p,i){ var q=parts[i+1]; if (q && (i+1)%7) { ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); } q=parts[i+7]; if(q){ ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); } });
+  }
+  ctx.fillStyle=cs.getPropertyValue('--water-deep').trim();
+  parts.forEach(function(p){ ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.fill(); });
+}
+
+/* ================= INTRO: Arctic ================= */
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function drawArctic(){
+  var m=+$('month').value; $('monthOut').textContent=MONTHS[m];
+  var amt=0.675+0.325*Math.cos(2*Math.PI*(m-2)/12);
+  var sea=150, w=520*amt, th=10+22*amt, sub=0.9, x=300-w/2;
+  var sunY=110-80*(0.5-0.5*Math.cos(2*Math.PI*(m-0)/12)); // high in summer
+  var summer=0.5-0.5*Math.cos(2*Math.PI*m/12);
+  var h='<rect class="s-sky" x="0" y="0" width="600" height="'+sea+'"/>';
+  h+='<circle class="s-sun" cx="80" cy="'+(140-100*summer)+'" r="'+(16+8*summer)+'" opacity="'+(0.35+0.65*summer)+'"/>';
+  h+='<rect class="s-water" style="opacity:.75" x="0" y="'+sea+'" width="600" height="'+(270-sea)+'"/>';
+  h+='<line class="s-surface" x1="0" x2="600" y1="'+sea+'" y2="'+sea+'"/>';
+  h+='<path class="s-ice" d="M'+x+' '+(sea-th*(1-sub))+' L'+(x+w)+' '+(sea-th*(1-sub))+' L'+(x+w-8)+' '+(sea+th*sub)+' L'+(x+8)+' '+(sea+th*sub)+' Z"/>';
+  h+='<text class="s-label" x="300" y="'+(sea+th*sub+24)+'" text-anchor="middle">Sea ice</text>';
+  h+='<text class="s-small" x="590" y="262" text-anchor="end">Arctic Ocean (not to scale)</text>';
+  if ($('showMark').checked) h+=tapeMark(0, 590, sea, 'sea level');
+  $('arctic').innerHTML=h;
+}
+$('month').addEventListener('input', drawArctic);
+$('showMark').addEventListener('change', drawArctic);
+
+/* ================= STATION 1 ================= */
+var S1 = {
+  A:150, H0:6, M:13.8, speed:2,
+  s:{ocean:'fresh', temp:'room', heat:'lamp', cubes:8},
+  trials: store.get('s1trials', []),
+  reset: function(){
+    this.t=0; this.running=false; this.started=false; this.done=false;
+    this.sea={added:false, ice:[], mark:null, markAfter:false, meltT:null};
+    this.land={added:false, ice:[], mark:null, meltT:null};
+    this.ref=null; this.log=[]; this.nextLog=0; this.chartLen=-1;
+    this.msg('Choose your settings. Then add ice to the water in the sea ice tub.');
+    this.ui();
+  },
+  msg: function(m){ $('s1msg').textContent=m; },
+  rhoW: function(){ return this.s.ocean==='salty'?1.025:1.0; },
+  newIce: function(n){ var a=[]; for (var i=0;i<n;i++) a.push({f:1, r:0.85+Math.random()*0.3}); return a; },
+  seaH: function(){ var v=0, rw=this.rhoW(), M=this.M; if (this.sea.added) this.sea.ice.forEach(function(c){ v+=M*c.f/rw + M*(1-c.f); }); return this.H0+v/this.A; },
+  landH: function(){ var v=0, M=this.M; if (this.land.added) this.land.ice.forEach(function(c){ v+=M*(1-c.f); }); return this.H0+v/this.A; },
+  kSea: function(){ return {cold:.15, room:.3, warm:.6}[this.s.temp] + {none:0, lamp:.08, dryer:.2}[this.s.heat]; },
+  kLand: function(){ return .07 + {none:0, lamp:.25, dryer:.45}[this.s.heat] + (this.s.temp==='warm'?.03:0); },
+  left: function(tub){ if (!tub.added) return 0; var s=0; tub.ice.forEach(function(c){s+=c.f;}); return s/tub.ice.length; },
+  step: function(dt){
+    if (!this.running) return;
+    var dm=dt*0.5*this.speed, self=this; this.t+=dm;
+    [['sea',this.kSea()],['land',this.kLand()]].forEach(function(p){
+      var tub=self[p[0]]; if (!tub.added) return;
+      tub.ice.forEach(function(c){ if (c.f>0){ c.f-=p[1]*c.r*Math.pow(c.f,2/3)*dm; if (c.f<0.002) c.f=0; } });
+      if (tub.meltT===null && tub.ice.every(function(c){return c.f===0;})) tub.meltT=self.t;
+    });
+    while (this.t>=this.nextLog){ this.log.push({t:this.nextLog, sea:(this.seaH()-this.ref.sea)*10, land:(this.landH()-this.ref.land)*10}); this.nextLog+=0.25; }
+    var seaLeft=this.sea.added && this.sea.ice.some(function(c){return c.f>0;}), landLeft=this.land.added && this.land.ice.some(function(c){return c.f>0;});
+    if (!seaLeft && !landLeft){ this.finish(); }
+  },
+  chg: function(tub, H){ return tub.mark===null ? null : (H-tub.mark)*10; },
+  finish: function(){
+    this.running=false; this.done=true;
+    this.log.push({t:this.t, sea:(this.seaH()-this.ref.sea)*10, land:(this.landH()-this.ref.land)*10});
+    if (this.sea.added && this.land.added){
+      var sc=this.chg(this.sea,this.seaH()), lc=this.chg(this.land,this.landH());
+      if (sc===null) sc=(this.seaH()-this.ref.sea)*10; if (lc===null) lc=(this.landH()-this.ref.land)*10;
+      this.trials.push({ocean:this.s.ocean, temp:this.s.temp, heat:this.s.heat, cubes:this.s.cubes, sea:sc, land:lc, seaT:this.sea.meltT, landT:this.land.meltT});
+      store.set('s1trials', this.trials); this.table();
+      this.msg('All the ice has melted. Trial '+this.trials.length+' is saved in your data table. Compare the two tubs, then reset to test a different setting.');
+    } else this.msg('All the ice has melted. Add ice to both tubs to save a full trial.');
+    this.ui();
+  },
+  table: function(){
+    var L={fresh:'Fresh',salty:'Salty',cold:'Cold',room:'Room temp',warm:'Warm',none:'None',lamp:'Lamp',dryer:'Hair dryer'};
+    $('s1table').innerHTML = this.trials.length ? this.trials.map(function(t,i){
+      return '<tr><td>'+(i+1)+'</td><td>'+L[t.ocean]+'</td><td>'+L[t.temp]+'</td><td>'+L[t.heat]+'</td><td>'+t.cubes+'</td><td>'+sgn(t.sea,1)+' mm<br><small>'+fmt(t.seaT,1)+' min</small></td><td>'+sgn(t.land,1)+' mm<br><small>'+fmt(t.landT,1)+' min</small></td></tr>';
+    }).join('') : '<tr><td class="empty" colspan="7">No trials yet. Melt all the ice in both tubs to record one.</td></tr>';
+  },
+  ui: function(){
+    var anyIce=this.sea.added||this.land.added;
+    this.c.ocean.disable(anyIce); this.c.temp.disable(anyIce); this.c.heat.disable(this.started && !this.done);
+    $('s1cubes').disabled=anyIce;
+    $('s1addSea').disabled=this.sea.added; $('s1addLand').disabled=this.land.added;
+    $('s1markSea').disabled=this.started; $('s1markLand').disabled=this.started;
+    $('s1go').disabled=this.done; $('s1go').textContent=this.running?'Pause timer':(this.started?'Resume timer':'Start timer');
+    checklist($('s1check'), [
+      ['Choose ocean water, temperature, heat source, and number of ice cubes', anyIce],
+      ['Add ice cubes to the water in the sea ice tub', this.sea.added],
+      ['Mark the water level on the outside of both tubs', this.sea.markAfter && this.land.mark!==null],
+      ['Put the same number of ice cubes on the land in the other tub', this.land.added],
+      ['Predict what will happen when the ice melts (box below)', txt('s1pred').length>0],
+      ['Start the timer and observe until all the ice melts', this.started],
+      ['Check the water levels and compare the two tubs', this.done]
+    ]);
+  },
+  readouts: function(){
+    $('s1time').textContent=fmt(this.t,1)+' min';
+    var sc=this.chg(this.sea,this.seaH()), lc=this.chg(this.land,this.landH());
+    $('s1seaChg').textContent= sc===null?'No mark yet':sgn(sc,1)+' mm';
+    $('s1landChg').textContent= lc===null?'No mark yet':sgn(lc,1)+' mm';
+    $('s1seaLeft').textContent= this.sea.added?Math.round(this.left(this.sea)*100)+'%':'No ice';
+    $('s1landLeft').textContent= this.land.added?Math.round(this.left(this.land)*100)+'%':'No ice';
+    if (this.log.length!==this.chartLen){ this.chartLen=this.log.length;
+      lineChart($('s1chart'), {xLabel:'Time (minutes)', yLabel:'Change (mm)', xMaxFloor:10, yMinFloor:-1, yMaxFloor:8, series:[
+        {cls:'c-sea', legend:'Sea ice tub', pts:this.log.map(function(p){return [p.t,p.sea];})},
+        {cls:'c-land', legend:'Land ice tub', pts:this.log.map(function(p){return [p.t,p.land];})}]});
+    }
+  },
+  draw: function(now){
+    var X1=70, X2=440, Y0=120, W=300, HT=240, YB=360, PX=20, self=this;
+    var heatOn=this.running && this.s.heat!=='none', h='';
+    if (heatOn && this.s.heat==='lamp') h+='<polygon class="s-glow" points="365,58 425,58 '+(X2+W)+','+Y0+' '+X1+','+Y0+'"/>';
+    function tub(x, H, kind){
+      var wy=YB-H*PX, t='<rect class="s-glass" x="'+x+'" y="'+Y0+'" width="'+W+'" height="'+HT+'" rx="6"/>';
+      if (kind==='land') t+='<path class="s-clay" d="M'+(x+40)+' '+YB+' V'+(YB-152)+' Q'+(x+40)+' '+(YB-160)+' '+(x+50)+' '+(YB-160)+' H'+(x+250)+' Q'+(x+260)+' '+(YB-160)+' '+(x+260)+' '+(YB-152)+' V'+YB+' Z"/><text class="s-small" x="'+(x+150)+'" y="'+(YB-143)+'" text-anchor="middle" style="fill:#fff">land (clay)</text>';
+      t+='<rect class="s-water" x="'+(x+2)+'" y="'+wy+'" width="'+(W-4)+'" height="'+(YB-wy-2)+'"/><line class="s-surface" x1="'+(x+2)+'" x2="'+(x+W-2)+'" y1="'+wy+'" y2="'+wy+'"/>';
+      return {svg:t, wy:wy};
+    }
+    // sea tub
+    var a=tub(X1, this.seaH(), 'sea'); h+=a.svg;
+    if (this.sea.added){
+      var sub=0.917/this.rhoW(), n=this.sea.ice.length, back='', front='';
+      this.sea.ice.forEach(function(c,i){
+        if (c.f<=0) return;
+        var s=49*Math.cbrt(c.f), row=i<5?0:1, j=row?i-5:i, rn=row?n-5:Math.min(n,5);
+        var cx=X1+W/2+(j-(rn-1)/2)*54+(row?16:0), bob=reduceMotion?0:Math.sin(now/600+i)*0.8;
+        var top=a.wy-s*(1-sub)-(row?7:0)+bob;
+        var r='<rect class="'+(row?'s-ice-back':'s-ice')+'" x="'+(cx-s/2)+'" y="'+top+'" width="'+s+'" height="'+s+'" rx="'+(3+4*(1-c.f))+'"/>';
+        if (!row) r+='<rect class="s-shine" x="'+(cx-s/2+4)+'" y="'+(top+3)+'" width="'+(s*0.3)+'" height="3" rx="1.5"/>';
+        if (row) back+=r; else front+=r;
+      });
+      h+=back+front+'<rect class="s-water" style="opacity:.25" x="'+(X1+2)+'" y="'+a.wy+'" width="'+(W-4)+'" height="'+(YB-a.wy-2)+'"/>';
+    }
+    h+='<rect class="s-edge" x="'+X1+'" y="'+Y0+'" width="'+W+'" height="'+HT+'" rx="6"/>'+ruler(X1-4, YB, PX, 12);
+    if (this.sea.mark!==null) h+=tapeMark(X1, X1+W+16, YB-this.sea.mark*PX);
+    // land tub
+    var b=tub(X2, this.landH(), 'land'); h+=b.svg;
+    if (this.land.added){
+      var caps=[4,3,2,1], idx=0, base=YB-160, ice=this.land.ice, melting=false;
+      for (var r=0;r<4 && idx<ice.length;r++){
+        var cnt=Math.min(caps[r], ice.length-idx), rowH=0;
+        for (var k=0;k<cnt;k++){ var c=ice[idx+k]; if (c.f>0){ melting=true; var s=49*Math.cbrt(c.f); rowH=Math.max(rowH,s);
+          var cx=X2+150+(k-(cnt-1)/2)*51;
+          h+='<rect class="s-ice" x="'+(cx-s/2)+'" y="'+(base-s)+'" width="'+s+'" height="'+s+'" rx="'+(3+4*(1-c.f))+'"/><rect class="s-shine" x="'+(cx-s/2+4)+'" y="'+(base-s+3)+'" width="'+(s*0.3)+'" height="3" rx="1.5"/>'; } }
+        base-=rowH; idx+=cnt;
+      }
+      if (melting && this.running && !reduceMotion){
+        for (var d=0; d<3; d++){ var ph=((now/900)+d/3)%1, yy=YB-160+ph*(b.wy-(YB-160));
+          h+='<circle class="s-drop" cx="'+(X2+37)+'" cy="'+yy+'" r="3"/><circle class="s-drop" cx="'+(X2+263)+'" cy="'+(YB-160+((ph+0.5)%1)*(b.wy-(YB-160)))+'" r="3"/>'; }
+      }
+    }
+    h+='<rect class="s-edge" x="'+X2+'" y="'+Y0+'" width="'+W+'" height="'+HT+'" rx="6"/>'+ruler(X2-4, YB, PX, 12);
+    if (this.land.mark!==null) h+=tapeMark(X2, X2+W+16, YB-this.land.mark*PX);
+    // heat source
+    if (this.s.heat==='lamp') h+=lamp(395, 18, heatOn);
+    else if (this.s.heat==='dryer') h+=dryer(395, 26, heatOn, now);
+    else h+='<text class="s-small" x="395" y="40" text-anchor="middle">No heat source</text>';
+    h+='<text class="s-label" x="'+(X1+W/2)+'" y="388" text-anchor="middle">Sea ice: ice floating in the ocean</text><text class="s-label" x="'+(X2+W/2)+'" y="388" text-anchor="middle">Land ice: ice resting on land</text>';
+    $('s1svg').innerHTML=h;
+  }
+};
+S1.c = {
+  ocean: seg($('s1ocean'), [['fresh','Fresh water'],['salty','Salty (like seawater)']], function(){return S1.s.ocean;}, function(v){S1.s.ocean=v;}),
+  temp: seg($('s1temp'), [['cold','Cold'],['room','Room temp'],['warm','Warm']], function(){return S1.s.temp;}, function(v){S1.s.temp=v;}),
+  heat: seg($('s1heat'), [['none','None'],['lamp','Lamp'],['dryer','Hair dryer']], function(){return S1.s.heat;}, function(v){S1.s.heat=v;}),
+  speed: speedSeg('s1speed', S1)
+};
+$('s1cubes').addEventListener('input', function(){ S1.s.cubes=+this.value; $('s1cubesOut').textContent=this.value; });
+$('s1addSea').addEventListener('click', function(){
+  S1.sea.added=true; S1.sea.ice=S1.newIce(S1.s.cubes);
+  if (S1.sea.mark!==null){ S1.sea.markAfter=false; S1.msg('The water rose as soon as the ice went in, so your tape mark is now below the water line. Mark the sea ice tub again so you only measure what melting does.'); }
+  else S1.msg('The ice is floating, and the water rose a little when it went in. Now mark the water level on both tubs.');
+  S1.ui();
+});
+$('s1addLand').addEventListener('click', function(){
+  S1.land.added=true; S1.land.ice=S1.newIce(S1.s.cubes);
+  S1.msg(S1.land.mark===null ? 'The ice is resting on the land. Did the water level change? Mark the land ice tub before you start.' : 'The ice is resting on the land. Did the water level move away from your mark? Write your prediction, then start the timer.');
+  S1.ui();
+});
+$('s1markSea').addEventListener('click', function(){ S1.sea.mark=S1.seaH(); S1.sea.markAfter=S1.sea.added; S1.msg(S1.sea.added?'Sea ice tub marked with tape.':'Sea ice tub marked. Remember: the procedure says to add the ice first, then mark.'); S1.ui(); });
+$('s1markLand').addEventListener('click', function(){ S1.land.mark=S1.landH(); S1.msg('Land ice tub marked with tape.'); S1.ui(); });
+$('s1go').addEventListener('click', function(){
+  if (!S1.sea.added && !S1.land.added){ S1.msg('Add ice to at least one tub before you start the timer.'); return; }
+  if (!S1.started){ S1.started=true; S1.ref={sea:S1.seaH(), land:S1.landH()}; S1.msg(S1.s.heat==='none'?'Timer running with no heat source. Watch the ice and the water lines.':'Timer running and heat is on. Watch the ice and the water lines.'); }
+  S1.running=!S1.running; S1.ui();
+});
+$('s1reset').addEventListener('click', function(){ S1.reset(); });
+$('s1clear').addEventListener('click', function(){ S1.trials=[]; store.set('s1trials',[]); S1.table(); });
+
+/* ================= STATION 2 ================= */
+function rhoFresh(T){ return 1-(T+288.9414)/(508929.2*(T+68.12963))*Math.pow(T-3.9863,2); }
+var S2 = {
+  V0:250, area:Math.PI*0.15*0.15, base:3, tubeLen:22, speed:2,
+  s:{water:'fresh', T0:6, dist:15, aim:'water', dye:'blue'},
+  trials: store.get('s2trials', []), curves: [],
+  reset: function(){
+    this.stage=0; this.T=this.s.T0; this.t=0; this.running=false; this.mark=false; this.log=[]; this.nextLog=0; this.corkAnim=1; this.chartLen=-1; this.saved=false;
+    this.msg('Fill the flask almost to the top with very cold water.'); this.ui();
+  },
+  msg: function(m){ $('s2msg').textContent=m; },
+  dV: function(){
+    var T=this.T, T0=this.s.T0;
+    if (this.s.water==='fresh') return this.V0*(rhoFresh(T0)/rhoFresh(T)-1);
+    return this.V0*(Math.exp(1e-4*(0.5*(T-T0)+0.055*(T*T-T0*T0)))-1);
+  },
+  rise: function(){ return this.stage<2?0:this.dV()/this.area; },
+  step: function(dt){
+    if (this.corkAnim<1) this.corkAnim=Math.min(1,this.corkAnim+dt*1.6);
+    if (!this.running) return;
+    var dm=dt*0.5*this.speed, n=8, h=dm/n;
+    var f=15/this.s.dist, kL=0.07*f*(this.s.aim==='water'?1:0.3), Tl=22+26*f;
+    for (var i=0;i<n;i++){ this.T+=h*(0.02*(22-this.T)+kL*(Tl-this.T)); }
+    this.t+=dm;
+    while (this.t>=this.nextLog){ this.log.push([this.T, this.rise()]); this.nextLog+=0.25; }
+    if (this.base+this.rise()>this.tubeLen && !this.over){ this.over=true; this.msg('The water overflowed out of the top of the tube! Save the trial and try a farther lamp or a shorter time.'); }
+    if (this.t>=30){ this.running=false; this.msg('30 minutes is the time limit for one trial. Save your trial.'); this.ui(); }
+  },
+  ui: function(){
+    var filled=this.stage>=1;
+    this.c.water.disable(filled); this.c.dye.disable(filled); $('s2t0').disabled=filled;
+    $('s2dist').disabled=this.running; this.c.aim.disable(this.running);
+    $('s2fill').disabled=filled; $('s2cork').disabled=this.stage!==1; $('s2mark').disabled=this.stage<2||this.t>0;
+    $('s2go').disabled=this.stage<2||this.t>=30; $('s2go').textContent=this.running?'Turn lamp off':'Turn lamp on';
+    $('s2save').disabled=this.t===0||this.running||this.saved;
+    checklist($('s2check'), [
+      ['Fill the flask almost to the top with very cold water', filled],
+      ['Put the cork with the tube and thermometer into the flask', this.stage>=2],
+      ['Record the temperature and mark the water level in the tube', this.mark],
+      ['Write a hypothesis about what heat will do (box below)', txt('s2pred').length>0],
+      ['Aim the lamp at the water and turn it on', this.t>0],
+      ['After 5 to 10 minutes, check the water level in the tube', this.t>=5],
+      ['Record your results', this.saved]
+    ]);
+  },
+  readouts: function(){
+    $('s2time').textContent=fmt(this.t,1)+' min';
+    $('s2temp').textContent=this.stage?fmt(this.T,1)+' °C':'—';
+    $('s2rise').textContent=this.stage<2?'—':(this.mark?sgn(this.rise(),1)+' cm':'No mark yet');
+    $('s2dv').textContent=this.stage<2?'—':sgn(this.dV(),2)+' mL (out of 250 mL)';
+    if (this.log.length!==this.chartLen){ this.chartLen=this.log.length;
+      var series=this.curves.map(function(c){ return {cls:'c-prev', pts:c}; });
+      series.push({cls:'c-sea', legend:'Current run', pts:this.log});
+      if (this.curves.length) series.unshift({cls:'c-prev', legend:'Saved trials', pts:[]});
+      lineChart($('s2chart'), {xLabel:'Water temperature (°C)', yLabel:'Rise in tube (cm)', xMin:this.s.T0, xMinAuto:true, xMaxFloor:this.s.T0+10, yMinFloor:0, yMaxFloor:5, series:series});
+    }
+  },
+  table: function(){
+    $('s2table').innerHTML=this.trials.length?this.trials.map(function(t,i){
+      return '<tr><td>'+(i+1)+'</td><td>'+(t.water==='fresh'?'Fresh':'Salty')+'</td><td>'+fmt(t.T0,1)+' °C</td><td>'+fmt(t.T,1)+' °C</td><td>'+t.dist+' cm</td><td>'+(t.aim==='water'?'Water':'Neck')+'</td><td>'+fmt(t.t,1)+' min</td><td>'+(t.over?'Overflowed':sgn(t.rise,1)+' cm')+'</td></tr>';
+    }).join(''):'<tr><td class="empty" colspan="8">No trials yet. Heat the flask, then press “Save this trial.”</td></tr>';
+  },
+  draw: function(now){
+    var on=this.running, h='', dye='dye-'+this.s.dye, CY=206, PXC=9;
+    var flask='M190 236 L190 268 L78 408 Q70 422 88 424 L352 424 Q370 422 362 408 L250 268 L250 236 Z';
+    h+='<line class="s-bench" x1="0" x2="470" y1="425" y2="425"/>';
+    // lamp
+    var lx=300+(this.s.dist-10)*3.6, ly, tx, ty;
+    if (this.s.aim==='water'){ ly=250; tx=230; ty=360; } else { ly=120; tx=220; ty=250; }
+    var ang=Math.atan2(ty-ly, tx-lx)*180/Math.PI-90;
+    if (on){ var spread=Math.max(30,70-(this.s.dist-10)); h+='<polygon class="s-glow" points="'+lx+','+ly+' '+(tx-spread*0.6)+','+(ty-spread)+' '+(tx+spread*0.6)+','+(ty+spread)+'"/>'; }
+    h+='<line class="s-tick" style="stroke-width:3" x1="'+(lx+40)+'" y1="0" x2="'+(lx+12)+'" y2="'+(ly-16)+'"/>';
+    h+='<g transform="rotate('+ang+' '+lx+' '+ly+')"><path class="s-lamp" d="M'+(lx-22)+' '+(ly-26)+' L'+(lx+22)+' '+(ly-26)+' L'+(lx+34)+' '+(ly+4)+' L'+(lx-34)+' '+(ly+4)+' Z"/><circle class="'+(on?'s-bulb-on':'s-bulb-off')+'" cx="'+lx+'" cy="'+(ly+6)+'" r="8"/></g>';
+    h+='<text class="s-small" x="'+lx+'" y="'+(ly+44)+'" text-anchor="middle">'+this.s.dist+' cm away</text>';
+    // flask + water
+    h+='<path class="s-glass" d="'+flask+'"/>';
+    if (this.stage>=1){
+      var topY=this.stage>=2?240:244;
+      h+='<clipPath id="fc"><path d="'+flask+'"/></clipPath><rect class="'+dye+'" clip-path="url(#fc)" x="60" y="'+topY+'" width="320" height="190"/>';
+    }
+    h+='<path class="s-edge" d="'+flask+'"/><rect class="s-glass" x="184" y="230" width="72" height="8" rx="3"/>';
+    if (this.stage>=2){
+      var lvl=Math.min(this.tubeLen, this.base*this.corkAnim+this.rise());
+      // thermometer
+      h+='<rect class="s-thermo" x="200" y="86" width="12" height="320" rx="6"/><circle class="s-red" cx="206" cy="404" r="8"/>';
+      var tY=200-(Math.max(-10,Math.min(50,this.T))+10)/60*110;
+      h+='<rect class="s-red" x="203.5" y="'+tY+'" width="5" height="'+(404-tY)+'"/>';
+      for (var tt=0;tt<=50;tt+=10){ var yy=200-(tt+10)/60*110; h+='<line class="s-tick" x1="194" x2="200" y1="'+yy+'" y2="'+yy+'"/><text class="s-ticktext" x="191" y="'+(yy+3)+'" text-anchor="end">'+tt+'</text>'; }
+      h+='<text class="s-ticktext" x="191" y="80" text-anchor="end">°C</text>';
+      // tube
+      h+='<rect class="s-tube" x="226" y="4" width="10" height="300" rx="3"/>';
+      var wy=CY-lvl*PXC;
+      h+='<rect class="'+dye+'" x="228" y="'+wy+'" width="6" height="'+(300-wy)+'"/>';
+      for (var c=0;c<=this.tubeLen;c++){ var gy=CY-c*PXC; h+='<line class="s-tick" x1="236" x2="'+(c%5===0?244:240)+'" y1="'+gy+'" y2="'+gy+'"/>'; if (c%5===0 && c>0) h+='<text class="s-ticktext" x="247" y="'+(gy+3)+'">'+c+'</text>'; }
+      // cork
+      h+='<path class="s-cork" d="M184 204 H256 L252 242 H188 Z"/><rect class="s-tube" x="226" y="200" width="10" height="46" rx="2" style="opacity:.6"/><rect class="s-thermo" x="200" y="200" width="12" height="46" style="opacity:.6"/>';
+      if (this.mark) h+=tapeMark(220, 300, CY-this.base*PXC);
+      if (this.over && !reduceMotion){ for (var d=0;d<3;d++){ var ph=((now/700)+d/3)%1; h+='<circle class="'+dye+'" cx="'+(238+ph*4)+'" cy="'+(8+ph*190)+'" r="3"/>'; } }
+    }
+    h+='<text class="s-label" x="372" y="418">250 mL flask</text>';
+    $('s2svg').innerHTML=h;
+  }
+};
+S2.c = {
+  water: seg($('s2water'), [['fresh','Fresh water'],['salty','Salty (like seawater)']], function(){return S2.s.water;}, function(v){S2.s.water=v;}),
+  aim: seg($('s2aim'), [['water','The water'],['neck','The neck']], function(){return S2.s.aim;}, function(v){S2.s.aim=v;}),
+  dye: seg($('s2dye'), [['blue','Blue'],['red','Red'],['green','Green']], function(){return S2.s.dye;}, function(v){S2.s.dye=v;}),
+  speed: speedSeg('s2speed', S2)
+};
+$('s2t0').addEventListener('input', function(){ S2.s.T0=+this.value; S2.T=S2.s.T0; $('s2t0Out').textContent=this.value+' °C'; S2.chartLen=-1; });
+$('s2dist').addEventListener('input', function(){ S2.s.dist=+this.value; $('s2distOut').textContent=this.value+' cm'; });
+$('s2fill').addEventListener('click', function(){ S2.stage=1; S2.T=S2.s.T0; S2.msg('The flask is full of '+S2.s.T0+' °C water. Next, insert the cork with the tube and thermometer.'); S2.ui(); });
+$('s2cork').addEventListener('click', function(){ S2.stage=2; S2.corkAnim=0; S2.msg('The cork pushed some water a short way up the tube. Record the temperature ('+fmt(S2.T,1)+' °C) and mark the water level.'); S2.ui(); });
+$('s2mark').addEventListener('click', function(){ S2.mark=true; S2.msg('Tube marked at the starting level. Write your hypothesis, then turn the lamp on.'); S2.ui(); });
+$('s2go').addEventListener('click', function(){
+  if (!S2.mark && !S2.running && S2.t===0) S2.msg('Tip: mark the tube first so you can measure the change. Lamp is on.');
+  else if (!S2.running) S2.msg(S2.s.aim==='water'?'Lamp on and aimed at the water. Check the tube after 5 to 10 minutes.':'Lamp on, but aimed at the neck of the flask. How will that change your results?');
+  else S2.msg('Lamp off. Read the thermometer and the tube, then save your trial.');
+  if (S2.t===0){ S2.log=[[S2.T,0]]; S2.nextLog=0.25; }
+  if (!S2.running) S2.saved=false;
+  S2.running=!S2.running; S2.ui();
+});
+$('s2save').addEventListener('click', function(){
+  S2.trials.push({water:S2.s.water, T0:S2.s.T0, T:S2.T, dist:S2.s.dist, aim:S2.s.aim, t:S2.t, rise:S2.rise(), over:!!S2.over});
+  store.set('s2trials', S2.trials); S2.curves.push(S2.log.slice()); S2.saved=true; S2.table(); S2.chartLen=-1;
+  S2.msg('Trial '+S2.trials.length+' saved. Empty the flask to run another trial with a different setting.'); S2.ui();
+});
+$('s2reset').addEventListener('click', function(){ S2.over=false; S2.reset(); });
+$('s2clear').addEventListener('click', function(){ S2.trials=[]; S2.curves=[]; store.set('s2trials',[]); S2.table(); S2.chartLen=-1; });
+
+function calc(){
+  var d=+$('cDepth').value, w=+$('cWarm').value; $('cDepthOut').textContent=d.toLocaleString()+' m'; $('cWarmOut').textContent=w.toFixed(1)+' °C';
+  var cm=d*2e-4*w*100;
+  $('cAnswer').innerHTML='If the top '+d.toLocaleString()+' m of the ocean warmed by '+w.toFixed(1)+' °C, sea level would rise by about <b>'+fmt(cm, cm<10?1:0)+' cm</b>'+(cm>=100?' ('+fmt(cm/100,1)+' m)':'')+'. That water would spread across every coastline on Earth.';
+}
+$('cDepth').addEventListener('input', calc); $('cWarm').addEventListener('input', calc); calc();
+
+/* ================= STATION 3 ================= */
+var S3 = {
+  A:150, speed:2, s:{heat:'lamp', temp:'room'},
+  reset: function(){ this.t=0; this.running=false; this.started=false; this.marked=false; this.E=0; this.v=0; this.Lw=0; this.cyc=0; this.drops=[]; this.log=[]; this.nextLog=0; this.chartLen=-1;
+    this.v=this.C()*0.45; this.v0=this.v; this.msg('Mark the water level on both tubs, then start the timer. Time runs in hours here because evaporation is slow.'); this.ui(); },
+  msg: function(m){ $('s3msg').textContent=m; },
+  eo: function(){ return 1.5*(this.s.heat==='lamp'?4:1)*(this.s.temp==='warm'?1.5:1); }, // mL per hour from an open tub
+  C: function(){ return (this.s.heat==='lamp'?0.45:0.25)*(this.s.temp==='warm'?1.3:1); }, // grams of vapor the lid air can hold
+  openChg: function(){ return -this.E/this.A*10; },
+  lidChg: function(){ return -((this.v-this.v0)+this.Lw)/this.A*10; },
+  step: function(dt, now){
+    if (!this.running) return;
+    var dh=dt*0.25*this.speed; this.t+=dh;
+    this.E+=this.eo()*dh;
+    var C=this.C(), fill=Math.min(C-this.v, this.eo()*dh*(1-this.v/C)*3);
+    if (fill>0) this.v+=fill;
+    if (this.v>=C*0.97){ var cond=this.eo()*(this.s.heat==='lamp'?0.45:0.15)*dh; this.Lw+=cond; this.cyc+=cond; }
+    if (this.Lw>=0.4){ this.Lw-=0.4; this.drops.push({x:470+Math.random()*260, t0:now}); }
+    while (this.t>=this.nextLog){ this.log.push({t:this.nextLog, o:this.openChg(), l:this.lidChg()}); this.nextLog+=0.25; }
+    if (this.t>=48){ this.running=false; this.msg('48 hours is the limit for this setup. Compare the two tubs.'); this.ui(); }
+  },
+  ui: function(){
+    this.c.heat.disable(this.started); this.c.temp.disable(this.started);
+    $('s3mark').disabled=this.started||this.marked; $('s3go').disabled=this.t>=48;
+    $('s3go').textContent=this.running?'Pause timer':(this.started?'Resume timer':'Start timer');
+  },
+  readouts: function(){
+    $('s3time').textContent=fmt(this.t,1)+' hours';
+    $('s3openChg').textContent=this.marked?sgn(this.openChg(),1)+' mm':'No mark yet';
+    $('s3lidChg').textContent=this.marked?sgn(this.lidChg(),2)+' mm':'No mark yet';
+    $('s3openEvap').textContent=fmt(this.E,0)+' mL';
+    $('s3hum').textContent=Math.round(100*this.v/this.C())+'%';
+    $('s3cycle').textContent=fmt(this.cyc,1)+' mL';
+    if (this.log.length!==this.chartLen){ this.chartLen=this.log.length;
+      lineChart($('s3chart'), {xLabel:'Time (hours)', yLabel:'Change (mm)', xMaxFloor:12, yMinFloor:-4, yMaxFloor:0.5, series:[
+        {cls:'c-sea', legend:'Lid tub', pts:this.log.map(function(p){return [p.t,p.l];})},
+        {cls:'c-land', legend:'Open tub', pts:this.log.map(function(p){return [p.t,p.o];})}]});
+    }
+  },
+  draw: function(now){
+    var X1=70, X2=440, Y0=150, W=300, HT=180, YB=330, PX=15, H0=6, h='', heat=this.running && this.s.heat==='lamp';
+    if (heat) h+='<polygon class="s-glow" points="365,58 425,58 '+(X2+W)+','+(Y0-20)+' '+X1+','+(Y0-20)+'"/>';
+    var self=this;
+    [[X1,this.openChg(),false],[X2,this.lidChg(),true]].forEach(function(o){
+      var x=o[0], wy=YB-(H0+o[1]/10)*PX;
+      h+='<rect class="s-glass" x="'+x+'" y="'+Y0+'" width="'+W+'" height="'+HT+'" rx="6"/><rect class="s-water" x="'+(x+2)+'" y="'+wy+'" width="'+(W-4)+'" height="'+(YB-wy-2)+'"/><line class="s-surface" x1="'+(x+2)+'" x2="'+(x+W-2)+'" y1="'+wy+'" y2="'+wy+'"/>';
+      if (self.running && !reduceMotion){
+        var rate=self.s.heat==='lamp'?1:0.5;
+        for (var i=0;i<4;i++){ var ph=((now/(2200/rate))+i/4)%1, vx=x+40+i*70;
+          var top=o[2]?Y0+12:Y0-90, y=wy-ph*(wy-top), op=(1-ph)*0.6;
+          if (o[2] && self.v>=self.C()*0.97) op*=0.6;
+          h+='<path class="s-vapor" style="opacity:'+op.toFixed(2)+'" d="M'+vx+' '+y+' q 6 -8 0 -16 q -6 -8 0 -16"/>'; }
+      }
+      h+='<rect class="s-edge" x="'+x+'" y="'+Y0+'" width="'+W+'" height="'+HT+'" rx="6"/>'+ruler(x-4, YB, PX, 12);
+      if (self.marked) h+=tapeMark(x, x+W+16, YB-H0*PX);
+      if (o[2]){
+        h+='<rect class="s-lid" x="'+(x-8)+'" y="'+(Y0-10)+'" width="'+(W+16)+'" height="12" rx="4"/>';
+        var nd=Math.min(40, Math.round(self.Lw/0.4*40)+(self.v>=self.C()*0.97?8:0));
+        for (var k=0;k<nd;k++){ var dx=x+12+((k*73)%276), r=1.6+((k*37)%10)/6; h+='<circle class="s-drop" style="opacity:.6" cx="'+dx+'" cy="'+(Y0+5+r)+'" r="'+r+'"/>'; }
+        self.drops.forEach(function(d){ var p=(now-d.t0)/600; if (p<1) h+='<circle class="s-drop" cx="'+d.x+'" cy="'+(Y0+6+p*(wy-Y0-6))+'" r="3.5"/>'; });
+      }
+    });
+    this.drops=this.drops.filter(function(d){ return now-d.t0<600; });
+    h+=this.s.heat==='lamp'?lamp(395,18,heat):'<text class="s-small" x="395" y="40" text-anchor="middle">No heat source</text>';
+    h+='<text class="s-label" x="'+(X1+W/2)+'" y="354" text-anchor="middle">Open tub</text><text class="s-label" x="'+(X2+W/2)+'" y="354" text-anchor="middle">Tub with a lid (sealed)</text>';
+    $('s3svg').innerHTML=h;
+  }
+};
+S3.c = {
+  heat: seg($('s3heat'), [['none','None'],['lamp','Lamp']], function(){return S3.s.heat;}, function(v){S3.s.heat=v; S3.reset();}),
+  temp: seg($('s3temp'), [['room','Room temp'],['warm','Warm']], function(){return S3.s.temp;}, function(v){S3.s.temp=v; S3.reset();}),
+  speed: speedSeg('s3speed', S3)
+};
+$('s3mark').addEventListener('click', function(){ S3.marked=true; S3.msg('Both tubs marked. Start the timer and watch both water lines and the lid.'); S3.ui(); });
+$('s3go').addEventListener('click', function(){ if (!S3.started){ S3.started=true; if(!S3.marked) S3.marked=true; } S3.running=!S3.running; S3.msg(S3.running?'Timer running. Where is the water vapor going in each tub?':'Paused.'); S3.ui(); });
+$('s3reset').addEventListener('click', function(){ S3.reset(); });
+
+/* ================= REFLECT ================= */
+function evidenceLines(){
+  var out=[];
+  var t1=S1.trials[S1.trials.length-1];
+  if (t1) out.push('Station 1 (trial '+S1.trials.length+'): sea ice tub changed '+sgn(t1.sea,1)+' mm, land ice tub changed '+sgn(t1.land,1)+' mm ('+t1.cubes+' cubes, '+t1.ocean+' water).');
+  var t2=S2.trials[S2.trials.length-1];
+  if (t2) out.push('Station 2 (trial '+S2.trials.length+'): '+t2.water+' water warmed from '+fmt(t2.T0,1)+' °C to '+fmt(t2.T,1)+' °C and '+(t2.over?'overflowed the tube.':'rose '+sgn(t2.rise,1)+' cm in the tube.'));
+  if (S3.t>0) out.push('Station 3 ('+fmt(S3.t,1)+' hours): open tub changed '+sgn(S3.openChg(),1)+' mm, lid tub changed '+sgn(S3.lidChg(),2)+' mm; '+fmt(S3.cyc,1)+' mL evaporated and dripped back in the lid tub.');
+  return out;
+}
+function renderEvidence(){
+  var l=evidenceLines();
+  $('evidence').innerHTML='<b>Your evidence so far</b>'+(l.length?'<ul>'+l.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>':'<p style="margin:.3rem 0 0">Complete a trial at each station and your results will appear here.</p>');
+}
+$('copyAll').addEventListener('click', function(){
+  var Q=[['Prediction: how could energy from the sun affect sea levels?','pre1'],['Prediction: how does the freeze-thaw cycle affect sea levels?','pre2'],['Predict: what factors should scientists explore?','pre3'],
+    ['Station 1 prediction','s1pred'],['Station 1 observations','s1obs'],['Station 1 model limitations','s1limit'],['Station 2 hypothesis','s2pred'],['Station 2 observations','s2obs'],['Station 3: which tub is more like Earth?','s3obs'],['Station 3 limitations','s3limit'],
+    ['1. What new information did you learn?','r1'],['2. Relationship between the two experiments','r2'],['3. Geosphere, hydrosphere, and atmosphere interactions','r3'],['4. Energy, evaporation, and sea level: procedure and limitations','r4']];
+  var s='Melting Ice, Rising Sea? Virtual Lab\nName: '+txt('stuName')+'   Period: '+txt('stuPeriod')+'\n\nEVIDENCE\n'+(evidenceLines().join('\n')||'(no trials yet)')+'\n';
+  Q.forEach(function(q){ s+='\n'+q[0]+'\n'+(txt(q[1])||'(blank)')+'\n'; });
+  function done(){ $('copyStatus').textContent='Copied. Paste it into your Google Doc or Classroom assignment.'; }
+  function fallback(){ var ta=document.createElement('textarea'); ta.value=s; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){ $('copyStatus').textContent='Copy was blocked. Select your answers and copy them by hand.'; } document.body.removeChild(ta); }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).then(done, fallback); else fallback();
+});
+var wipeArmed=false;
+$('wipe').addEventListener('click', function(){
+  if (!wipeArmed){ wipeArmed=true; this.textContent='Press again to erase everything'; var b=this; setTimeout(function(){ wipeArmed=false; b.textContent='Start over on this device'; }, 4000); return; }
+  document.querySelectorAll('[data-save]').forEach(function(t){ t.value=''; store.set('txt:'+t.getAttribute('data-save'),''); });
+  S1.trials=[]; S2.trials=[]; S2.curves=[]; store.set('s1trials',[]); store.set('s2trials',[]); S1.table(); S2.table(); S1.reset(); S2.reset(); S3.reset();
+  wipeArmed=false; this.textContent='Start over on this device'; $('copyStatus').textContent='Everything on this device was erased.'; renderEvidence();
+});
+
+/* ================= LOOP ================= */
+S1.reset(); S1.table(); S2.reset(); S2.table(); S3.reset();
+route(); drawArctic();
+var last=performance.now();
+function frame(now){
+  var dt=Math.min(0.1,(now-last)/1000); last=now;
+  S1.step(dt); S2.step(dt); S3.step(dt, now);
+  if (view==='start') drawParticles();
+  else if (view==='ice'){ S1.draw(now); S1.readouts(); }
+  else if (view==='warming'){ S2.draw(now); S2.readouts(); }
+  else if (view==='evaporation'){ S3.draw(now); S3.readouts(); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
